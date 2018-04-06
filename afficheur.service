@@ -1,0 +1,12 @@
+[Unit]
+Description=Hacked AFEGE LED Display python program
+
+[Service]
+Type=forking
+User=pi
+Group=pi
+ExecStart=/usr/bin/screen -d -m -S afficheur -s python /home/pi/afficheur.py /media/afficheur
+ExecStop=/usr/bin/screen -X -S afficheur kill
+
+[Install]
+WantedBy=multi-user.target
