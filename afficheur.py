@@ -58,6 +58,7 @@ def DisplaySend(bytes):
 		s.append(byte)
 		serialport.write(s)
 		time.sleep(0.06) #0.05 is not enough
+	aff_state['last_send'] = time.time()
 
 
 dict = {u'1':[0x02,0x82], u'2':[0x03,0x83], u'3':[0x04,0x84], u'4':[0x05,0x85], u'5':[0x06,0x86], u'6':[0x07,0x87], u'7':[0x08,0x88], u'8':[0x09,0x89], u'9':[0x0A,0x8A], u'0':[0x0B,0x8B],
@@ -315,41 +316,45 @@ def main(argv):
 		sys.stderr.write("Usage: %s <directory>\n\n" % argv[0])
 		sys.exit(-1)
 
-	DisplayInit()
 	while True:
-		file = MakeFileChoice(argv[1])
-		DisplayReadFile(file)
+		DisplayInit()
+		while True:
+			file = MakeFileChoice(argv[1])
+			DisplayReadFile(file)
 
-		if not DisplayNeedUpdateCheck():
-			DisplayPark()
-			time.sleep(2)
-			continue
+			if (time.time() - aff_state['last_send'] > 8):
+				break
 
-		if file != oldfile:
-			print ('['+file+']')
-			DisplayClearScreen()
-			DisplayNeedUpdateCheck()
-			oldfile = file
+			if not DisplayNeedUpdateCheck():
+				DisplayPark()
+				time.sleep(2)
+				continue
 
-		if aff_state['x'] >= aff_state['width']:
-			DisplaySendEnterKey()
+			if file != oldfile:
+				print ('['+file+']')
+				DisplayClearScreen()
+				DisplayNeedUpdateCheck()
+				oldfile = file
 
-		if aff_state['diffline'][aff_state['y']]:
-			sys.stdout.write(str(aff_state['y'])+'\t')
-			for x in range(aff_state['width']):
-				if aff_state['input'][aff_state['y']][aff_state['x']:] == aff_state['output'][aff_state['y']][aff_state['x']:]:
-					break
-				try:
-					sys.stdout.write(aff_state['input'][aff_state['y']][aff_state['x']]);
-				except:
-					sys.stdout.write('?')
-				sys.stdout.flush()
-				DisplaySendChar(aff_state['input'][aff_state['y']][aff_state['x']])
-			sys.stdout.write('\n')
+			if aff_state['x'] >= aff_state['width']:
+				DisplaySendEnterKey()
 
-		if DisplayNeedUpdateCheck():
-			DisplaySendEnterKey()
-			#DisplaySendHomeKey()
+			if aff_state['diffline'][aff_state['y']]:
+				sys.stdout.write(str(aff_state['y'])+'\t')
+				for x in range(aff_state['width']):
+					if aff_state['input'][aff_state['y']][aff_state['x']:] == aff_state['output'][aff_state['y']][aff_state['x']:]:
+						break
+					try:
+						sys.stdout.write(aff_state['input'][aff_state['y']][aff_state['x']]);
+					except:
+						sys.stdout.write('?')
+					sys.stdout.flush()
+					DisplaySendChar(aff_state['input'][aff_state['y']][aff_state['x']])
+				sys.stdout.write('\n')
+
+			if DisplayNeedUpdateCheck():
+				DisplaySendEnterKey()
+				#DisplaySendHomeKey()
 
 
 if __name__ == "__main__":
