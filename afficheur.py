@@ -225,7 +225,7 @@ def DisplayInit():
 	time.sleep(0.50)
 	DisplaySendEnterKey()
 	DisplayIdle()
-	DisplaySendChar('2')
+	DisplaySendChar('1')
 	DisplayIdle()
 	time.sleep(0.50)
 	DisplaySendEnterKey()
